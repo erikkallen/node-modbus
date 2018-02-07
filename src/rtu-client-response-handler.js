@@ -1,4 +1,4 @@
-let debug = require('debug')('rtu-response-handler')
+let debug = require('debug')('rtu-client-response-handler')
 let ModbusRTUResponse = require('./rtu-response.js')
 let ModbusClientResponseHandler = require('./client-response-handler.js')
 
