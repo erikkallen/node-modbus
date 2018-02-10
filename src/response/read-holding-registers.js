@@ -1,4 +1,5 @@
 let ModbusResponseBody = require('./response-body.js')
+let debug = require('debug')('read-holding-response')
 
 /** Read Holding Registers ResponseBody (Function Code 0x03)
  * @extends ModbusResponseBody
@@ -29,6 +30,7 @@ class ReadHoldingRegistersResponseBody extends ModbusResponseBody {
     let byteCount = buffer.readUInt8(1)
     let payload = buffer.slice(2, 2 + byteCount)
 
+    debug("Read holding from buffer", buffer ,byteCount, payload)
     if (fc !== 0x03) {
       return null
     }
@@ -36,6 +38,7 @@ class ReadHoldingRegistersResponseBody extends ModbusResponseBody {
     let values = []
     for (let i = 0; i < byteCount; i += 2) {
       values.push(payload.readUInt16BE(i))
+      debug("Adding value ", payload.readUInt16BE(i))
     }
 
     return new ReadHoldingRegistersResponseBody(byteCount, values)
@@ -56,7 +59,7 @@ class ReadHoldingRegistersResponseBody extends ModbusResponseBody {
   }
 
   get byteCount () {
-    return this._values.length + 2
+    return (this._values.length * 2) + 2
   }
 
   get values () {
@@ -79,9 +82,10 @@ class ReadHoldingRegistersResponseBody extends ModbusResponseBody {
     let payload = Buffer.alloc(this.byteCount)
 
     payload.writeUInt8(this._fc, 0)
-    payload.writeUInt8(this.length, 1)
+    // Input registers are 16 bit
+    payload.writeUInt8((this._values.length * 2), 1)
     this._values.forEach(function (value, i) {
-      payload.writeUInt8(value, 2 + i)
+      payload.writeUInt16BE(value, 2 + ( i * 2))
     })
 
     return payload

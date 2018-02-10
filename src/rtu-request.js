@@ -28,7 +28,7 @@ class ModbusRTURequest {
 
     let crc
     try {
-      crc = buffer.readUInt16BE(1 + body.byteCount)
+      crc = buffer.readUInt16LE(1 + body.byteCount)
       debug("Request crc", crc)
       
     } catch (e) {
@@ -54,12 +54,14 @@ class ModbusRTURequest {
   createPayload () {
     let bodyPayload = this._body.createPayload()
 
-    this._crc = CRC.crc16modbus(bodyPayload)
-
     let payload = Buffer.alloc(1 + bodyPayload.length + 2)
     payload.writeUInt8(this._address, 0) // address
     bodyPayload.copy(payload, 1) // copy body
-    payload.writeUInt16BE(this._crc, 1 + bodyPayload.length) // crc
+
+    debug("Payload to crc", payload)
+
+    this._crc = CRC.crc16modbus(payload.slice(0, -2)) // limit crc over body only
+    payload.writeUInt16LE(this._crc, 1 + bodyPayload.length) // crc
 
     return payload
   }

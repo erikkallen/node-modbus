@@ -26,15 +26,20 @@ class ModbusRTUResponse {
 
     let body = ResponseFactory.fromBuffer(buffer.slice(1))
 
+    debug('body', body)
+
     if (!body) {
       return null
     }
 
-    let crc
+    debug("body", body)
+    debug("body bc", body.byteCount)
+
+    let crc = 0
     try {
-      crc = buffer.readUInt16BE(1 + body.byteCount)
+      crc = buffer.readUInt16LE(1 + body.byteCount)
     } catch (e) {
-      debug('If NoSuchIndexException, it is probably serial and not all data has arrived')
+      debug('If NoSuchIndexException, it is probably serial and not all data has arrived', e)
       return null
     }
 
@@ -62,13 +67,15 @@ class ModbusRTUResponse {
   createPayload () {
     let bodyPayload = this._body.createPayload()
 
-    this._crc = CRC.crc16modbus(bodyPayload)
-
     let payload = Buffer.alloc(1 + bodyPayload.length + 2)
     payload.writeUInt8(this._address, 0) // address
     bodyPayload.copy(payload, 1) // copy body
-    payload.writeUInt16BE(this._crc, 1 + bodyPayload.length) // crc
-    debug("Create payload", this._address, this._crc, bodyPayload)
+
+    debug("Payload to crc", payload)
+
+    this._crc = CRC.crc16modbus(payload.slice(0, -2)) // limit crc over body only
+    payload.writeUInt16LE(this._crc, 1 + bodyPayload.length) // crc
+
     return payload
   }
 
