@@ -16,7 +16,7 @@ class ModbusRTUResponse {
   }
 
   static fromBuffer (buffer) {
-    if (buffer.length < 1) {
+    if (buffer.length < 5) {
       return null
     }
 
