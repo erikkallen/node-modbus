@@ -12,8 +12,8 @@ class ReadHoldingRegistersResponseBody extends ModbusResponseBody {
    * @returns ReadHoldingRegistersResponseBody
    */
   static fromRequest (requestBody, holdingRegisters) {
-    let startByte = requestBody.start
-    let endByte = requestBody.start + (requestBody.count * 2)
+    let startByte = (requestBody.start * 2)
+    let endByte = startByte + (requestBody.count * 2)
 
     let bufferSegment = holdingRegisters.slice(startByte, endByte)
     let buf = Buffer.from(bufferSegment)

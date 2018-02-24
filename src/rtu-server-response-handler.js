@@ -61,7 +61,7 @@ class RTUResponseHandler {
       }
 
       let ReadHoldingRegistersResponseBody = require('./response/read-holding-registers.js')
-      let responseBody = ReadHoldingRegistersResponseBody.fromRequest(request.body, this._server.holdingRegisters)
+      let responseBody = ReadHoldingRegistersResponseBody.fromRequest(request.body, this._server.holding)
       let response = ModbusRTUResponse.fromRequest(request, responseBody)
       let payload = response.createPayload()
       cb(payload)
@@ -77,7 +77,7 @@ class RTUResponseHandler {
       }
 
       let ReadInputRegistersResponseBody = require('./response/read-input-registers.js')
-      let responseBody = ReadInputRegistersResponseBody.fromRequest(request.body, this._server.inputRegisters)
+      let responseBody = ReadInputRegistersResponseBody.fromRequest(request.body, this._server.input)
       let response = ModbusRTUResponse.fromRequest(request, responseBody)
       let payload = response.createPayload()
       cb(payload)
